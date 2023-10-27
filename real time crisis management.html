@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Crisis Management</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; }
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+    
+        .side {
+            flex: 1;
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    
+        h2 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container"> 
+        <div class="side"> 
+            <h2>Live Weather</h2>
+        </div> 
+    <div class="side"> 
+        <h2>Live News</h2> 
+    </div> 
+    </div>
+    <script>
+        // Function to fetch data from an API endpoint
+        async function fetchData(url) {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Error fetching data');
+            }
+            return await response.json();
+        }
+    
+        // Function to dynamically load weather data
+        async function loadWeatherData() {
+            try {
+                const weatherData = await fetchData('https://api.openweathermap.org/data/2.5/weather?q=London&appid=YOUR_API_KEY');
+                // Assuming weatherData has the properties: main, description, temp
+                const weatherDiv = document.querySelector('.side:first-child');
+                weatherDiv.innerHTML = `
+                    <h3>${weatherData.main}</h3>
+                    <p>${weatherData.description}</p>
+                    <p>Temperature: ${weatherData.temp} &#8451;</p>
+                `;
+            } catch (error) {
+                console.error('Error fetching weather data:', error);
+            }
+        }
+    
+        // Function to dynamically load news data
+        async function loadNewsData() {
+            try {
+                const newsData = await fetchData('https://newsapi.org/v2/top-headlines?q=disaster&apiKey=YOUR_API_KEY');
+                // Assuming newsData has articles with properties: title, description, url, publishedAt
+                const newsDiv = document.querySelector('.side:last-child');
+                newsDiv.innerHTML = newsData.articles.map(article => `
+                    <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
+                    <p>${article.description}</p>
+                    <p>Published: ${new Date(article.publishedAt).toLocaleString()}</p>
+                    <hr>
+                `).join('');
+            } catch (error) {
+                console.error('Error fetching news data:', error);
+            }
+        }
+    
+        // Load weather and news data when the page loads
+        window.addEventListener('load', () => {
+            loadWeatherData();
+            loadNewsData();
+        });
+    </script>
+</body>
+</html>
